@@ -1,0 +1,50 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+
+# One tag releases both: the template (its version is the tag) and the gate
+# `rb-gate`, whose wheel and sdist go to the GitHub release. A package runs the
+# gate of the tag it was generated from, so the two never drift (ADR 0013).
+jobs:
+  gate-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # tags: the gate's version comes from them
+          persist-credentials: false
+      # setup-uv v10.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d
+        with:
+          python-version: '3.11'
+          enable-cache: false
+      - run: uv run --directory gate --group dev pytest -q -m "not network"
+      - run: uv build gate --out-dir dist
+      - name: Check distribution metadata
+        run: uvx --from 'twine>=6,<7' twine check dist/*
+      - name: Verify the tag matches the gate version
+        run: |
+          wheel=$(basename dist/rb_gate-*.whl)
+          version=${wheel#rb_gate-}
+          version=${version%-py3-none-any.whl}
+          case "$version" in *+*) echo "the tag is not on this commit: $version"; exit 1;; esac
+          test "$GITHUB_REF_NAME" = "v$version" || { echo "$GITHUB_REF_NAME does not match $version"; exit 1; }
+      - name: Install the wheel and run the gate help
+        run: |
+          uv venv /tmp/gate-env
+          uv pip install --python /tmp/gate-env/bin/python dist/rb_gate-*.whl
+          /tmp/gate-env/bin/gate --help
+      - name: Attach the distributions to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --generate-notes
+      # Optional: `uvx rb-gate gate check` for anyone needs an index. Add the
+      # PYPI_TOKEN secret to enable; the release above works without it.
+      - name: Publish to PyPI when the token is present
+        if: ${{ env.PYPI_TOKEN != '' }}
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish --token "$PYPI_TOKEN" dist/*

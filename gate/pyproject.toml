@@ -1,18 +1,30 @@
 [project]
 name = "rb-gate"
-# Not released on its own: a package runs the gate of a template tag
-# (uvx --from "git+…/cli-generator.git@<tag>#subdirectory=gate" gate check).
-version = "0.0.0"
+# Version comes from the git tag vX.Y.Z (uv-dynamic-versioning) — never add `version =`.
+# The gate and the template share one tag: a package runs the gate of the tag it was generated from.
+dynamic = ["version"]
 description = "The release gate of the CLI standard: gate check, run over the package in the current directory"
+readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["typer>=0.12"]
+dependencies = ["typer>=0.27,<0.29"]
+
+[project.urls]
+Repository = "https://github.com/bolandeu/cli-generator"
 
 [project.scripts]
 gate = "rb_gate.cli:main"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+fallback-version = "0.0.0"
 
 [tool.hatch.build.targets.wheel]
 packages = ["rb_gate", "standard"]
