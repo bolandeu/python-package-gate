@@ -59,6 +59,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 import tomllib
 import zipfile
 from collections.abc import Callable
@@ -236,6 +237,21 @@ INSTALL_KEYS = ("homeserver", "mac", "extras")
 # The gate runs from its own tool environment (`uv tool install`): the package's commands must not inherit it,
 # or `uv run` inside the package would pick the gate's venv instead of the project's.
 _OWN_ENV = ("VIRTUAL_ENV", "VIRTUAL_ENV_PROMPT", "PYTHONHOME", "CONDA_PREFIX")
+
+
+_UNREACHABLE = (
+    "i/o timeout",
+    "dial tcp",
+    "connection refused",
+    "connection reset",
+    "no such host",
+    "temporary failure in name resolution",
+)
+
+
+def _unreachable(output: str) -> bool:
+    """The scanner could not reach its database: the release is not at fault."""
+    return any(marker in output for marker in _UNREACHABLE)
 
 
 def _clean_env() -> dict[str, str]:
@@ -420,8 +436,18 @@ class Gate:
         scanner = shutil.which("osv-scanner")
         if scanner is None:
             return "skipped: osv-scanner not installed (brew install osv-scanner)"
-        self.step_output(scanner, "--lockfile=uv.lock")
-        return "no known vulnerabilities in uv.lock"
+        for attempt in (1, 2):
+            try:
+                self.step_output(scanner, "--lockfile=uv.lock")
+                return "no known vulnerabilities in uv.lock"
+            except StepFailed as exc:
+                # The scanner asks api.osv.dev: a timeout is the network, not a finding, and one retry
+                # keeps a flaky resolver from blocking a release that has nothing to fix.
+                if attempt == 1 and _unreachable(str(exc)):
+                    time.sleep(2)
+                    continue
+                raise
+        return "no known vulnerabilities in uv.lock"  # unreachable: the loop returns or raises
 
     def _wheel_tops(self, wheel: Path) -> list[str]:
         """The top-level packages a wheel carries: one per module or package directory."""
