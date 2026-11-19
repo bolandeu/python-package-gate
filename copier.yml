@@ -162,7 +162,6 @@ include_cli:
   type: bool
   help: "Generate the Typer CLI: commands, `--help`, `describe`, `doctor`, `skill`. Off: a library only — the gate then skips every CLI rule."
   default: true
-  ask: false
 
 include_project:
   type: bool
