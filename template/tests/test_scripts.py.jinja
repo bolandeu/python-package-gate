@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import importlib.util
-{% if include_cli %}
-import os
-import shutil
-import subprocess
-{% endif %}
+import os  # noqa: F401 — used only by the CLI tests below
+import shutil  # noqa: F401 — used only by the CLI tests below
+import subprocess  # noqa: F401 — used only by the CLI tests below
 from pathlib import Path
 from types import ModuleType
 
