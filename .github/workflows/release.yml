@@ -24,7 +24,7 @@ jobs:
       - run: uv run --directory gate --group dev pytest -q -m "not network"
       - run: uv build gate --out-dir dist
       - name: Check distribution metadata
-        run: uvx --from 'twine>=6,<7' twine check dist/*
+        run: uvx --from 'twine>=7,<8' twine check dist/*
       - name: Verify the tag matches the gate version
         run: |
           wheel=$(basename dist/rb_gate-*.whl)
