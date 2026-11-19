@@ -19,6 +19,21 @@ _exclude:
   - "CLAUDE.md"
   - "docs/adr/README.md"
   - ".agents/antagor/.gitignore"
+  # A library without a CLI: the gate then runs its library branch (no console script).
+  - "{% if include_cli is false %}src/{{ package_name }}/cli.py{% endif %}"
+  - "{% if include_cli is false %}src/{{ package_name }}/__main__.py{% endif %}"
+  - "{% if include_cli is false %}src/{{ package_name }}/commands{% endif %}"
+  - "{% if include_cli is false %}src/{{ package_name }}/output{% endif %}"
+  - "{% if include_cli is false %}src/{{ package_name }}/data/SKILL.md{% endif %}"
+  - "{% if include_cli is false %}scripts/check_command_docstrings.py{% endif %}"
+  - "{% if include_cli is false %}tests/test_cli.py{% endif %}"
+  - "{% if include_cli is false %}tests/test_help.py{% endif %}"
+  - "{% if include_cli is false %}tests/test_describe.py{% endif %}"
+  - "{% if include_cli is false %}tests/test_detach.py{% endif %}"
+  - "{% if include_cli is false %}tests/test_contracts.py{% endif %}"
+  - "{% if include_cli is false %}tests/snapshots{% endif %}"
+  - "{% if include_cli is false %}tests/help_allowlist.txt{% endif %}"
+  - "{% if include_cli is false %}tests/data/opencli.schema.json{% endif %}"
   # A part added after the first release drops its files only when its answer is false: copier renders the
   # previous version with these patterns too (to keep what they exclude), and there that answer is undefined.
   - "{% if include_project is false %}src/{{ package_name }}/commands/project.py{% endif %}"
@@ -142,6 +157,12 @@ updating:
   type: bool
   default: "{{ _external_data.previous_answers._commit is defined }}"
   when: false
+
+include_cli:
+  type: bool
+  help: "Generate the Typer CLI: commands, `--help`, `describe`, `doctor`, `skill`. Off: a library only — the gate then skips every CLI rule."
+  default: true
+  ask: false
 
 include_project:
   type: bool

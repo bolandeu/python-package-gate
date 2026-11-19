@@ -30,8 +30,10 @@ dependencies = [
 {%- endif %}
 ]
 
+{% if include_cli -%}
 [project.scripts]
 {{ cli_name }} = "{{ package_name }}.cli:main"
+{%- endif %}
 {%- if repository_url %}
 
 [project.urls]
@@ -112,10 +114,12 @@ dev = [
 homeserver = [{{ install_homeserver_users.split(',') | map('trim') | select | map('tojson') | join(', ') }}]
 mac = {{ 'true' if install_mac else 'false' }}
 
+{% if include_cli -%}
 [tool.cli-generator]
 # Where scripts/check_command_docstrings.py (called by the project's checks)
 # looks for commands: a glob or a list of globs, relative to the repo root.
 commands = ["src/{{ package_name }}/commands/*.py"]
+{%- endif %}
 # gate check (the gate): extras to install before ruff/ty/pytest.
 # gate_extras = ["browser"]
 

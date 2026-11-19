@@ -1,7 +1,7 @@
 schema = 1
 prefix = "{{ antagor_prefix }}"
 name = "{{ antagor_name }}"
-checks = ["python3 scripts/check_command_docstrings.py"]
+{% if include_cli %}checks = ["python3 scripts/check_command_docstrings.py"]{% else %}checks = []{% endif %}
 heavy = ["gate check"]
 
 [review]
