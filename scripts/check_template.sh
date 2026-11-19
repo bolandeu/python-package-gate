@@ -237,11 +237,11 @@ assert (i['homeserver'], i['mac']) == $expected_install, i"
     check_antagor_files
 }
 
-# expect_no_workflow: the package in the cwd has no workflow file under any forge: its gate is local, so a package
-# generates none and an updated one loses the one the template rendered before (the Standard, CI)
-expect_no_workflow() {
-    found=$(find .gitea .github -type f 2>/dev/null || true)
-    [ -z "$found" ] || { printf '%s\n' "$found" >&2; fail "the package has a workflow"; }
+# expect_no_gate_workflow: no CI workflow runs the gate — it runs locally (the Standard, CI). A release workflow is
+# allowed and shipped: a tag builds the wheel and the sdist and attaches them to the GitHub release.
+expect_no_gate_workflow() {
+    found=$(grep -rl "gate check" .gitea .github 2>/dev/null || true)
+    [ -z "$found" ] || { printf '%s\n' "$found" >&2; fail "a workflow runs the gate"; }
 }
 
 # expect_database_errors <present|absent>: the rendered core/errors.py defines the three Database errors, or none
@@ -272,7 +272,7 @@ check_variant() {
     run git init -q
     run test -f .agents/antagor/antagor.toml
     expect_no_antagor_files
-    expect_no_workflow
+    expect_no_gate_workflow
     check_module_docstrings
     verify_project "$expected_install"
     expect_parts absent docs
@@ -393,7 +393,7 @@ PY
     done
     expect_parts present $PARTS
     expect_parts absent docs
-    expect_no_workflow
+    expect_no_gate_workflow
     check_antagor_files_kept
     # The help page of the docs command is the project's own file: the update leaves it to the project.
     run rm -f tests/snapshots/help/docs.txt
