@@ -260,7 +260,7 @@ def guard(func: Callable) -> Callable:
             return func(ctx, *args, **kwargs)
         except CliError as exc:
             emit_error(ctx, exc)
-        except typer.Exit, typer.Abort:
+        except (typer.Exit, typer.Abort):
             raise  # already a controlled exit — don't wrap it
         except Exception as exc:
             if ctx.obj.get("verbose"):

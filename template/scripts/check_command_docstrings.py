@@ -36,7 +36,7 @@ def command_globs() -> tuple[str, ...]:
         return DEFAULT_COMMAND_FILES
     try:
         config = tomllib.loads(Path("pyproject.toml").read_text()).get("tool", {}).get("cli-generator", {})
-    except OSError, tomllib.TOMLDecodeError:
+    except (OSError, tomllib.TOMLDecodeError):
         return DEFAULT_COMMAND_FILES
     value = config.get("commands", DEFAULT_COMMAND_FILES)
     return (value,) if isinstance(value, str) else tuple(value)

@@ -196,7 +196,7 @@ class SchemaState:
             return False
         try:
             return ScriptDirectory.from_config(alembic_config()).get_revision(self.current) is None
-        except RevisionError, CommandError:  # alembic raises (not returns None) for an unknown id
+        except (RevisionError, CommandError):  # alembic raises (not returns None) for an unknown id
             return True
 
 

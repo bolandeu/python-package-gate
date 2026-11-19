@@ -71,7 +71,7 @@ def _zombie(pid: int) -> bool:
         return (
             stat.rpartition(")")[2].split()[0] == "Z"
         )  # after the last ')': the command name may hold spaces and parentheses
-    except OSError, IndexError:
+    except (OSError, IndexError):
         pass
     with contextlib.suppress(OSError):  # macOS has no /proc
         ps = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)], capture_output=True, text=True, check=False)
@@ -92,7 +92,7 @@ def _alive(pid: int) -> bool:
 def _pid(runs: Path, label: str) -> int | None:
     try:
         return int((runs / f"{label}.pid").read_text().strip())
-    except OSError, ValueError:
+    except (OSError, ValueError):
         return None
 
 
