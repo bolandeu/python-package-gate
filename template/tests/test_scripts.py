@@ -26,7 +26,7 @@ def test_antagor_project_config() -> None:
     root = SCRIPTS.parent
     config = tomllib.loads((root / ".agents" / "antagor" / "antagor.toml").read_text())
     # A package may add or reorder checks; the template guarantees only the package's own facts.
-    assert "python3 scripts/check_command_docstrings.py" in config["checks"]
+{% if include_cli %}    assert "python3 scripts/check_command_docstrings.py" in config["checks"]{% endif %}
     assert "gate check" in config["heavy"]
     publish = config["publish"]
     if publish.get("gate") == "remote":
@@ -44,7 +44,7 @@ def test_agents_file_names_the_standard_and_the_gate() -> None:
     assert "gate check" in agents
 
 
-def test_docstring_check_reads_the_working_tree_only() -> None:
+{% if include_cli %}def test_docstring_check_reads_the_working_tree_only() -> None:
     import inspect
 
     check = _load("check_command_docstrings")
@@ -121,3 +121,4 @@ def test_project_declares_the_gitea_index_explicit() -> None:
 
     config = tomllib.loads((SCRIPTS.parent / "pyproject.toml").read_text())
     assert {"name": "gitea", "url": GITEA_INDEX, "explicit": True} in config["tool"]["uv"]["index"]
+{% endif %}
