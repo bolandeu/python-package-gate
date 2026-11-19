@@ -165,7 +165,12 @@ run_gate_on_python_311() {
         run uv sync -q --python 3.11
         run uv run ruff format -q .
         run git add -A
-        run git -c user.name=gate -c user.email=gate@example.invalid commit -q -m python311
+        # The template is 3.11-ready now (requires-python and the except clauses): the copy may need no edit at all.
+        if git diff --cached --quiet; then
+            printf '==> [minimal] nothing to make 3.11-valid: the template already is\n'
+        else
+            run git -c user.name=gate -c user.email=gate@example.invalid commit -q -m python311
+        fi
         run git -c user.name=gate -c user.email=gate@example.invalid tag -f -a v0.1.0 -m v0.1.0
         run_gate --python 3.11
     ) || exit 1
