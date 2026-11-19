@@ -816,3 +816,12 @@ def test_the_gate_ignores_its_own_virtualenv(monkeypatch) -> None:
     env = _clean_env()
     assert "VIRTUAL_ENV" not in env and "PYTHONHOME" not in env
     assert env["KEEP_ME"] == "1"
+
+
+def test_a_warning_on_stderr_is_not_the_version(tmp_path: Path) -> None:
+    """A dependency that warns while importing must not make the release fail: the version comes from stdout."""
+    script = tmp_path / "noisy"
+    script.write_text('#!/bin/sh\necho "warn: deprecated" >&2\necho "1.2.3"\n', encoding="utf-8")
+    script.chmod(0o755)
+    gate = Gate(tmp_path)
+    assert gate._printed_version(script) == "1.2.3"

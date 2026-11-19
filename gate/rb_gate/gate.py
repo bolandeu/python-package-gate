@@ -448,8 +448,15 @@ class Gate:
         return f"imports {', '.join(tops)}; importlib.metadata version = {reported}"
 
     def _printed_version(self, exe: Path) -> str:
-        """What a console script prints for `--version`: its last line, as Typer prints a bare version there."""
-        printed = self.step_output(str(exe), "--version", env=probe_env()).splitlines()
+        """What a console script prints for `--version`: the last line of stdout, where Typer prints it.
+
+        Only stdout: a dependency may warn on stderr while importing (pandas does), and that warning is
+        not the version. A warning must not turn a correct install into a failed release.
+        """
+        result = subprocess.run([str(exe), "--version"], env=probe_env(), capture_output=True, text=True, check=False)
+        if result.returncode:
+            raise StepFailed(f"$ {exe} --version\n{(result.stdout + result.stderr).strip()}")
+        printed = result.stdout.splitlines()
         return printed[-1].strip() if printed else ""
 
     def _fresh_describe(self, script: str, exe: Path) -> str:
