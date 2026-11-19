@@ -24,7 +24,7 @@ def test_antagor_project_config() -> None:
         assert status_url.endswith("/commits/{commit}/status")
     expected = {"versioning": "semver", "changelog": "CHANGELOG.md", "deploy_command": "sh scripts/deploy.sh"}
     assert {k: config["publish"].get(k) for k in expected} == expected  # Antagor may add its own keys
-    assert "git push main --follow-tags" in (SCRIPTS / "deploy.sh").read_text()
+    assert "git push origin main --follow-tags" in (SCRIPTS / "deploy.sh").read_text()
 
 
 def test_agents_file_names_the_standard_and_the_gate() -> None:
