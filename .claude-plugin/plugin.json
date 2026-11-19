@@ -1,5 +1,5 @@
 {
-  "name": "cli-generator",
+  "name": "python-package-gate",
   "description": "Scaffold new CLI tools or refactor existing ones onto a shared Python/Typer/uv architecture: project-aware config, OS-keychain credentials, dual human/JSON output, AI-readable errors and a bundled agent skill.",
   "version": "0.1.0",
   "author": { "name": "Roman Bolandau" }

@@ -9,7 +9,7 @@ requires-python = ">=3.11"
 dependencies = ["typer>=0.27,<0.29"]
 
 [project.urls]
-Repository = "https://github.com/bolandeu/cli-generator"
+Repository = "https://github.com/bolandeu/python-package-gate"
 
 [project.scripts]
 gate = "rb_gate.cli:main"

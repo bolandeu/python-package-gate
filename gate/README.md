@@ -4,7 +4,7 @@ The release gate of the CLI standard: `gate check`, run over the package in the
 current directory. A package runs it from a release asset of this repository:
 
 ```sh
-uvx --from https://github.com/bolandeu/cli-generator/releases/download/v1.28.0/rb_gate-1.28.0-py3-none-any.whl gate check
+uvx --from https://github.com/bolandeu/python-package-gate/releases/download/v1.28.0/rb_gate-1.28.0-py3-none-any.whl gate check
 ```
 
 or, once the distribution is on a package index, `uvx rb-gate gate check`.

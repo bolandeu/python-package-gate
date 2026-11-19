@@ -217,7 +217,7 @@ include_contracts:
 # `.agents/antagor/antagor.toml` and the docs render it.
 gate_command:
   type: str
-  default: 'uvx --from "git+https://github.com/bolandeu/cli-generator.git@{{ _copier_answers._commit }}#subdirectory=gate" gate check'
+  default: 'uvx --from "git+https://github.com/bolandeu/python-package-gate.git@{{ _copier_answers._commit }}#subdirectory=gate" gate check'
   when: false
 
 repository_url:
