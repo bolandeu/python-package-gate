@@ -116,7 +116,7 @@ mac = {{ 'true' if install_mac else 'false' }}
 # Where scripts/check_command_docstrings.py (called by the project's checks)
 # looks for commands: a glob or a list of globs, relative to the repo root.
 commands = ["src/{{ package_name }}/commands/*.py"]
-# rb-release check (the gate): extras to install before ruff/ty/pytest.
+# gate check (the gate): extras to install before ruff/ty/pytest.
 # gate_extras = ["browser"]
 
 [tool.pytest.ini_options]

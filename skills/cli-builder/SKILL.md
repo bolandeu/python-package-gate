@@ -96,5 +96,5 @@ The parts of the Standard most likely to get skipped under time pressure:
   Never bypass the docstring check with `SKIP_DOCSTRING_CHECK` (humans only).
 - Versions come only from git tags; dependencies on our other tools by version range
   from the Gitea registry.
-- The gate (`rb-release check`, run through `uvx` at the template tag) is green before every commit. It is local:
+- The gate (`gate check`, run through `uvx` at the template tag) is green before every commit. It is local:
   `[publish] gate_command` of `.agents/antagor/antagor.toml` writes the command; Antagor's `checks` hold no gate.

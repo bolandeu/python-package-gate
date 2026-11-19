@@ -60,7 +60,7 @@ semver tag `vX.Y.Z` (PEP 440), changelog from ticket titles. Nobody
 pushes by hand. Docs: `CONTEXT.md` (terms), `docs/adr/` (decisions),
 `CODING_STANDARDS.md` (review rules). TDD applies: a new behaviour of the
 template's code (`scripts/`, `core/`) gets its test first, failing. The
-gate of a generated package is `rb-release check` from this repo's `gate/`,
+gate of a generated package is `gate check` from this repo's `gate/`,
 run through `uvx --from "git+…/cli-generator.git@<template tag>#subdirectory=gate"`:
 the template and the gate are one version (ADR 0013,
 `docs/adr/0013-gate-in-this-repo-package-standalone.md`).
@@ -77,7 +77,7 @@ The gate is one command (the minimal package from default answers, a package
 with every optional part, credentials alone in a publish-only variant — no
 homeserver users, no Mac — and providers without credentials: copier copy into
 a temp dir, `uv sync`, a literal check of the rendered `[tool.rb.install]`,
-ruff, ty, pytest, then `git init` + tag `v0.1.0` + `rb-release check` from
+ruff, ty, pytest, then `git init` + tag `v0.1.0` + `gate check` from
 `gate/`, and a check of which part files are there; then `copier update`
 rounds from the previous release tag and from v1.20.10, which must remove no
 file but the docs command's; temp dirs removed, non-zero exit on any failure):
@@ -108,7 +108,7 @@ config explicitly — `template/pyproject.toml.jinja` isn't a real
 uvx ruff format --line-length 120 template/src template/scripts
 ```
 
-For the distribution + release path (`scripts/release.py`, tag pinning),
+For the distribution + release path (`gate check`, tag pinning),
 verify against a local bare remote rather than assuming: `git init --bare
 /tmp/remote.git`, add it as `origin` in the generated project, commit,
 `git tag -a v0.1.0 -m v0.1.0` (`uv run <cli> --version` must now print
@@ -125,7 +125,7 @@ dependency-confusion check: a local flat index holding a wheel named like an
 existing PyPI package (`yandex-oauth` 0.2.1), added to a generated project as
 `"yandex-oauth>=0.2"` + `[[tool.uv.index]] name = "local", url = "<dir>",
 format = "flat", explicit = true` + `[tool.uv.sources] yandex-oauth = { index
-= "local" }`. `release.py --check` must pass and install the local copy; a
+= "local" }`. `gate check` must pass and install the local copy; a
 plain `uv pip install <wheel>` gets PyPI's 1.x (that is the bug the step
 prevents — the step fails with "installed from a package index other than
 their explicit index" if it ever regresses).

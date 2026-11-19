@@ -19,11 +19,11 @@ from pathlib import Path
 
 # The Standard's table of exit codes (section Errors; in a template package: core/errors.py EXIT_CODES).
 EXIT_CODES = frozenset(range(7))
-UNKNOWN_OPTION = "--rb-release-unknown-option"
+UNKNOWN_OPTION = "--rb-gate-unknown-option"
 NO_SCRIPT = "skipped: no console script, a library"
 DOCS = ("README.md", "AGENTS.md")
 FORGES = (".gitea/workflows/", ".github/workflows/")
-GATE_COMMAND = "rb-release check"
+GATE_COMMAND = "gate check"
 # What a CI runner sets and Typer reads at import (forcing terminal output): the pytest step runs with them,
 # every probe of the installed script runs without them.
 CI_ENV = {"GITHUB_ACTIONS": "true", "FORCE_COLOR": "1", "PY_COLORS": "1"}

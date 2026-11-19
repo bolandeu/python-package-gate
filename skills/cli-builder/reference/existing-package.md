@@ -11,7 +11,7 @@ changes. Keep the behaviour: what the package did before still works after.
 1. Run the gate in the package root:
 
    ```bash
-   uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<template tag>#subdirectory=gate" rb-release check
+   uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<template tag>#subdirectory=gate" gate check
    ```
 
    `<template tag>` is the latest tag of `cli-generator`. The gate exists only in template tags v1.21.0 and later, so
@@ -125,11 +125,11 @@ fixes or when the package still has the old gate.
    `grep -n 'cli-core' pyproject.toml uv.lock` finds nothing. Remove what is left by hand. Edit the gate command in
    `README.md` by hand.
 7. **The gate line of the Antagor config.** `.agents/antagor/antagor.toml` keeps the docstring check in `checks`,
-   `heavy = ["rb-release check"]`, and the local gate: `[publish] gate_command` holds the command with the template tag,
+   `heavy = ["gate check"]`, and the local gate: `[publish] gate_command` holds the command with the template tag,
    and `[publish]` names no `gate` and no `gate_status_url` (Standard, CI). The update writes that line, drops the gate
    line from an unchanged `checks` and deletes the workflow. A package of mode fast wrote its own
    `checks`: this update, once, conflicts on that one line. Resolve it: keep the package's own `checks`, with no gate
-   command, and delete the conflict markers. `AGENTS.md` and `CODING_STANDARDS.md` name `rb-release check` and no
+   command, and delete the conflict markers. `AGENTS.md` and `CODING_STANDARDS.md` name `gate check` and no
    workflow. A task for a worker: the
    Architect puts `.agents/antagor/antagor.toml` in `owns_paths` of the task.
 8. **Lock and snapshots.** `uv lock`, then `uv run pytest --snapshot-update`. Help snapshots are rendered only on
@@ -137,7 +137,7 @@ fixes or when the package still has the old gate.
 9. **Gate.**
 
    ```bash
-   uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<template tag>#subdirectory=gate" rb-release check
+   uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<template tag>#subdirectory=gate" gate check
    ```
 
    Run it until it ends with `release: gate passed`. `<template tag>` is `_commit` in `.copier-answers.yml` after the update. A new template release can add a rule that

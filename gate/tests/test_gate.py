@@ -1,4 +1,4 @@
-"""`rb-release check`: the release gate, run against the package in the cwd (fixture packages: conftest.py)."""
+"""`gate check`: the release gate, run against the package in the cwd (fixture packages: conftest.py)."""
 
 from __future__ import annotations
 
@@ -16,10 +16,10 @@ from typer.main import get_command
 from typer.testing import CliRunner
 
 from conftest import PYPROJECT, git
-from rb_release.cli import app
-from rb_release.gate import Gate, Step, StepFailed, changed_existing_tests, contract_summary, external_programs
+from rb_gate.cli import app
+from rb_gate.gate import Gate, Step, StepFailed, changed_existing_tests, contract_summary, external_programs
 
-CLI = "rb-release"
+CLI = "rb-gate"
 STEPS = [
     "secret scan",
     "uv lock --check",

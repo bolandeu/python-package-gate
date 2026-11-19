@@ -1,4 +1,4 @@
-"""The release gate (`rb-release check`), run against any package.
+"""The release gate (`gate check`), run against any package.
 
 Gate steps, in order — the first failure stops everything and prints that
 step's name and output, then `release: code failed` (exit 1) or, when only
@@ -239,7 +239,7 @@ class Gate:
     def __init__(self, root: Path) -> None:
         self.root = root
         # The built wheel and its venv, kept for the whole run: the Standard's steps run the installed script.
-        self._scratch = tempfile.TemporaryDirectory(prefix="rb-release-")
+        self._scratch = tempfile.TemporaryDirectory(prefix="rb-gate-")
         self.console_script: Path | None = None
         # What the wheel step built: the fresh install asks a new host's environment for the same version.
         self.wheel: Path | None = None
@@ -249,9 +249,7 @@ class Gate:
     def at(cls, root: Path) -> Gate:
         """The gate of the package at `root`; a directory without pyproject.toml is a usage error."""
         if not (root / "pyproject.toml").is_file():
-            raise NotAPackage(
-                f"No pyproject.toml in '{root}': run 'rb-release check' in the root directory of a package."
-            )
+            raise NotAPackage(f"No pyproject.toml in '{root}': run 'gate check' in the root directory of a package.")
         return cls(root)
 
     def _pyproject(self) -> dict:

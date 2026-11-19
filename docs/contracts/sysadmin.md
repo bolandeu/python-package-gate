@@ -11,7 +11,7 @@
 
 ## Цепочка пакета
 
-✅ Mac (код, гейт `rb-release check`) → `antagor publish` Человеком: тег `vX.Y.Z` + push в Gitea `bolandeu`
+✅ Mac (код, гейт `gate check`) → `antagor publish` Человеком: тег `vX.Y.Z` + push в Gitea `bolandeu`
 → tool-updater собирает wheel → PyPI-реестр Gitea → ставит на homeserver пользователям из `[tool.rb.install]`
 → Windmill вызывает инструменты: воркер → ssh `rbrun@172.17.0.1` (forced command `/usr/local/bin/rb-run`) →
 sudo от `rbtools` → `/usr/local/libexec/rb-tool` (Doppler `tools/prd`, `DOPPLER_TOKEN` снимается до запуска).
@@ -22,7 +22,7 @@ Push-зеркало Gitea → приватный архив на GitHub (в GitH
 
 | Кто | Область |
 |---|---|
-| `cli-generator` | Стандарт (`reference/`), шаблон copier, гейт `rb-release` (`gate/`, пакет запускает его через `uvx` по тегу шаблона), скилл `cli-builder`. Формат того, что пакет объявляет: `[tool.rb.install]`, `[[tool.rb.external]]`, env-имена ключей, `auth status`, `doctor`, `--version`. Содержимое шаблонного CI. Правила обновления пакетов на новый стандарт (SKILL.md, режим Update). |
+| `cli-generator` | Стандарт (`reference/`), шаблон copier, гейт `rb-gate` (`gate/`, пакет запускает его через `uvx` по тегу шаблона), скилл `cli-builder`. Формат того, что пакет объявляет: `[tool.rb.install]`, `[[tool.rb.external]]`, env-имена ключей, `auth status`, `doctor`, `--version`. Содержимое шаблонного CI. Правила обновления пакетов на новый стандарт (SKILL.md, режим Update). |
 | агент пакета | Код своего пакета, его тикеты, `copier update` своего репо по команде Человека. |
 | `sysadmin` | Gitea, реестр, tool-updater, `tools.toml`, Mac-агент `rb-tools-update`, Renovate, раннер Gitea Actions, `repo-sync`, Uptime Kuma → Telegram, Doppler (хранение ключей, токены), обёртки `rbtools` и `rb-run`, окружение Mac и homeserver. |
 | Человек | `antagor publish` (push, релиз), политики (ключи, ротация), отзыв ключей у провайдеров, решения по контракту. |
@@ -33,7 +33,7 @@ Push-зеркало Gitea → приватный архив на GitHub (в GitH
 
 ## Интерфейс между нами
 
-Пакет гарантирует (проверяет гейт `rb-release check`):
+Пакет гарантирует (проверяет гейт `gate check`):
 - ✅ версия — только git-тег `vX.Y.Z` (PEP 440); `uv build` собирает wheel без сети к git;
 - ✅ секция `[tool.rb.install]` есть и корректна (`homeserver`, `mac`, `extras`);
 - ✅ первая запись `[project.scripts]` — команда, которую проверяют `<cmd> --version` (= версия wheel) и `--help`;
@@ -61,7 +61,7 @@ Push-зеркало Gitea → приватный архив на GitHub (в GitH
 | Renovate (подъём `rb-*` в зависимостях; `copier update` — работает с 20.10.2026, у пакетов с `_src_path` на Gitea) | homeserver | ночью 02:30 | sysadmin | PR в репо; все `bolandeu/*`, кроме PRODUCTS |
 | Gitea Actions (раннер `docker`, кэш `ci-cache`) | homeserver | push/PR, только `.gitea/workflows/` | sysadmin (раннер), cli-generator (workflow) | статус в Gitea |
 | ci-cache-prune.timer (`uv cache prune` тома CI) | homeserver | вс 05:00 | sysadmin | journalctl |
-| `rb-release check` | Mac, CI | перед коммитом, в тикете antagor | cli-generator | красный гейт |
+| `gate check` | Mac, CI | перед коммитом, в тикете antagor | cli-generator | красный гейт |
 
 ## Ключи
 
@@ -83,7 +83,7 @@ Push-зеркало Gitea → приватный архив на GitHub (в GitH
    (обёртка для пакетов с `mac = true`, делает sysadmin). Keychain (`auth login`) — только локальная подмена при
    разработке; ключ только в keychain — нарушение.
 4. **Новый ключ.** Агент пакета шлёт sysadmin тикет: имя env, где взять, кому нужен. В Doppler кладёт sysadmin или
-   Человек. Ключ в репо или в файле — нельзя; gitleaks в `rb-release check` ловит (репо Gitea открыты всем в tailnet).
+   Человек. Ключ в репо или в файле — нельзя; gitleaks в `gate check` ловит (репо Gitea открыты всем в tailnet).
 5. **Утечка — сразу:** отзыв у провайдера — Человек, новое значение в Doppler — sysadmin или Человек, проверка
    `doppler run` из обёрток — sysadmin. Плановой смены по сроку нет.
 6. **Пароли целей (хостинги, деплой):** `<CLI>_DEPLOY_<HOST>_PASSWORD`, `<HOST>` — `A-Z0-9_` (точка и дефис → `_`).

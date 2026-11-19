@@ -5,7 +5,7 @@ refactors existing ones onto one shared architecture (Python + uv + Typer,
 dual human/JSON output, AI-readable errors, optional parts — project config,
 OS-keychain credentials, an `HttpProvider` base for external APIs, a database —
 each behind a copier question, versions from git tags and the changelog written by
-`antagor publish` from ticket titles (semver; no towncrier, no hand-made hooks), one local gate — `uvx --from "git+…/cli-generator.git@<template tag>#subdirectory=gate" rb-release check` —
+`antagor publish` from ticket titles (semver; no towncrier, no hand-made hooks), one local gate — `uvx --from "git+…/cli-generator.git@<template tag>#subdirectory=gate" gate check` —
 that also proves the built wheel installs and reports the right version,
 `auth status --check --json` in a cross-tool shape, and an enforced
 `--help` contract).

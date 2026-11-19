@@ -19,7 +19,7 @@ Verdicts: `open` 17, `done` 25, `elsewhere` 6, `dropped` 3.
 
 - `skills/cli-builder/reference/standard.md`, its sections by name — Technology, Commands, Output,
   Errors, Health, Credentials, Install, Docs, CI, Release, Optional parts.
-- The gate: `gate/rb_release/gate.py` (steps, `_CONTRACT_RESULT`, `install_locked`, `check_index_sources`)
+- The gate: `gate/rb_gate/gate.py` (steps, `_CONTRACT_RESULT`, `install_locked`, `check_index_sources`)
   and `gate/standard/__init__.py` (`probe_env`, `Package.run_each`, the `standard:` rules).
 - `skills/cli-builder/reference/existing-package.md` and `SKILL.md`.
 - `copier.yml`, `template/.agents/antagor/antagor.toml.jinja`, `template/.gitea/workflows/ci.yml.jinja`,
@@ -61,7 +61,7 @@ the reason of a `dropped` one.
 | F5.7 `uv.lock` changes are not in the conflict list | done | `existing-package.md` step 8, "Lock and snapshots": `uv lock` | — |
 | F5.8 README install lines are the package's to fix | done | `README.md` is in `_skip_if_exists`; `existing-package.md` step 5 edits it by hand | — |
 | F6.1 `gate_status_url` takes the repository name from `repository_url` (the GitHub mirror) | open | `template/.agents/antagor/antagor.toml.jinja` still renders the last path segment of `repository_url` | `gate_status_url` names the package's Gitea repo, not its GitHub mirror |
-| F7.1 the contracts step misses `[gw0]` lines under pytest-xdist | open | `gate/rb_release/gate.py`, `_CONTRACT_RESULT`, and its `-vv` run has no `-p no:xdist` | gate, consumer contracts: the summary survives pytest-xdist |
+| F7.1 the contracts step misses `[gw0]` lines under pytest-xdist | open | `gate/rb_gate/gate.py`, `_CONTRACT_RESULT`, and its `-vv` run has no `-p no:xdist` | gate, consumer contracts: the summary survives pytest-xdist |
 | F8.1 the gate line of a ported CI workflow has the tag pasted by hand | done | `existing-package.md`, "The loop", step 1: a ported workflow pins the tag as a constant | — |
 | F8.2 help snapshots need the render env pinned in conftest | open | the template pins it inside `tests/test_help.py`; `existing-package.md` does not name it for a package's own test | existing package: a help test pins `COLUMNS`, `NO_COLOR` and `TERM` |
 | F8.3 a stale `.git/hooks/pre-commit` stops `antagor new`, and the agents' classifiers refuse `rm` | elsewhere | antagor: the hook policy and the classifier are Antagor's | antagor: a stale `.git/hooks/pre-commit` blocks `antagor new` |
@@ -72,7 +72,7 @@ the reason of a `dropped` one.
 | F9.3 the template `ci.yml` comment names `.copier-answers.yml` | dropped | the comment is the template's own workflow; a ported one pins the tag (`existing-package.md` step 1); CG-IDEA-001 may drop CI altogether | — |
 | F9.4 no library variant of `AGENTS.md` and the workflow in the docs | open | Standard, Docs and CI name one package shape; only Install spells out a library | Standard, Docs and CI: what a library's `AGENTS.md` and workflow say |
 | F9.5 `task-create` needs `--no-epic --confirmed` without an epic; the Antagor config is the Architect's on main | elsewhere | antagor | antagor: `task-create` without an epic |
-| F10.1 a dependency by a GitHub git URL passes the local gate and fails CI at `uv sync`; no gate step catches it | open | Standard, Install recommends the Gitea registry; `gate/rb_release/gate.py` checks only explicit-index sources. Related to IDEA-248 | the gate refuses a `[tool.uv.sources]` git URL for one of our packages |
+| F10.1 a dependency by a GitHub git URL passes the local gate and fails CI at `uv sync`; no gate step catches it | open | Standard, Install recommends the Gitea registry; `gate/rb_gate/gate.py` checks only explicit-index sources. Related to IDEA-248 | the gate refuses a `[tool.uv.sources]` git URL for one of our packages |
 | F10.2 fixing a package before `antagor new` leaves those commits out of the first changelog | elsewhere | antagor | antagor: the first changelog misses the commits before `antagor new` |
 | F11.1 the template side of the Antagor config drops the package's own `worker` and extra `checks` | done | `existing-package.md` step 7 keeps the package's `checks`; the template's config carries no `worker` key | — |
 | F12.1 the CI runner's Python 3.11.2 wraps an `except*` re-raise in an ExceptionGroup | dropped | CG-056 (v1.25.6) made every package require 3.14 | — |
@@ -98,7 +98,7 @@ One row per decision; the last five rows are the other parts of the plan.
 | S4 the package is standalone; the output and error layer is code in the package; the core is a development tool | done | Standard, Technology (two Recommended rules); ADR 0013 | — |
 | S5 the skill in two modes | done | `SKILL.md`, `reference/new-package.md`, `reference/existing-package.md` | — |
 | S6 meeting the Standard means a green gate; every Mandatory rule is checked by machine | done | Standard, opening paragraph; ADR 0011 | — |
-| S7 the gate lives in this repo (`gate/`), one version with the template, command `rb-release` | done | ADR 0013; `gate/`; the CI workflow of a package | — |
+| S7 the gate lives in this repo (`gate/`), one version with the template, command `rb-gate` | done | ADR 0013; `gate/`; the CI workflow of a package | — |
 | S8 `clidocs` stays outside; the `docs` command is gone; `describe` is an optional part | done | ADR 0008; Standard, Describe | — |
 | S9 the Standard is frozen: a new rule needs a package that breaks without it | open | nowhere: the freeze decision exists only in this plan file (a grep of `*.md` outside `.agents/` finds it nowhere else) | Standard, intro: a new rule needs a package that breaks without it |
 | S10 order: Standard, minimal template, skill, rollout | done | v1.21.0 … v1.25.0 (ADR 0013, ADR 0011, E-005, E-006) | — |

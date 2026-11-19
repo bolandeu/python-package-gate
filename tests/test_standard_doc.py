@@ -30,7 +30,7 @@ OPTIONAL_PARTS = [
     "Consumer contracts",
     "Detach",
 ]
-# The names `rb-release check` prints for its steps.
+# The names `gate check` prints for its steps.
 GATE_STEPS = {
     "standard: commands",
     "standard: json",

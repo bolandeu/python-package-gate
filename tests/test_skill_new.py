@@ -50,7 +50,7 @@ def test_new_package_lists_every_optional_part_by_its_copier_question():
 
 
 def test_new_package_runs_the_uvx_gate_before_every_commit():
-    assert "rb-release check" in NEW_PACKAGE
+    assert "gate check" in NEW_PACKAGE
     assert "#subdirectory=gate" in NEW_PACKAGE
     assert "before every commit" in NEW_PACKAGE
 

@@ -1,5 +1,5 @@
 # ruff: noqa: RUF001 - the tests feed the gate help titled in Russian
-"""The gate's `standard: <rule>` steps: `rb-release check` on a fixture CLI that meets every mandatory rule of the
+"""The gate's `standard: <rule>` steps: `gate check` on a fixture CLI that meets every mandatory rule of the
 Standard, and on copies of it that each break one rule (one change applied here)."""
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import pytest
 from typer.testing import CliRunner
 
 from conftest import PYPROJECT
-from rb_release.cli import app
+from rb_gate.cli import app
 from standard import CI_ENV
 
 STANDARD_STEPS = ["commands", "json", "errors", "health", "docs", "params", "ci"]
@@ -328,7 +328,7 @@ def test_a_workflow_that_runs_the_gate_fails_at_ci(in_package) -> None:
     workflow = root / ".gitea" / "workflows" / "ci.yml"
     workflow.parent.mkdir(parents=True)
     workflow.write_text(
-        "on: push\njobs:\n  gate:\n    steps:\n      - run: uvx --from git+https://example.invalid/x.git rb-release check\n"
+        "on: push\njobs:\n  gate:\n    steps:\n      - run: uvx --from git+https://example.invalid/x.git gate check\n"
     )
 
     assert "the gate runs locally" in _failed_at(CliRunner().invoke(app, ["check"]), "ci", "CI")
@@ -433,7 +433,7 @@ def test_an_unrelated_workflow_that_only_mentions_the_gate_in_a_comment_passes(i
     workflow = root / ".github" / "workflows" / "release.yml"
     workflow.parent.mkdir(parents=True)
     workflow.write_text(
-        "on: push\n# never run rb-release check here\njobs:\n  release:\n    steps:\n      - run: echo release\n"
+        "on: push\n# never run gate check here\njobs:\n  release:\n    steps:\n      - run: echo release\n"
     )
 
     result = CliRunner().invoke(app, ["check"])
@@ -446,7 +446,7 @@ def test_a_workflow_one_level_deep_that_runs_the_gate_fails_at_ci(in_package) ->
     root = in_package(COMPLIANT, pyproject=PYPROJECT + SCRIPT)
     workflow = root / ".gitea" / "workflows" / "skip" / "ci.yml"
     workflow.parent.mkdir(parents=True)
-    workflow.write_text("on: push\njobs:\n  gate:\n    steps:\n      - run: rb-release check\n")
+    workflow.write_text("on: push\njobs:\n  gate:\n    steps:\n      - run: gate check\n")
 
     assert "the gate runs locally" in _failed_at(CliRunner().invoke(app, ["check"]), "ci", "CI")
 

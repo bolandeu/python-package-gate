@@ -10,9 +10,9 @@ README = (ROOT / "README.md").read_text()
 
 GATE = (
     'uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git'
-    '@<template tag>#subdirectory=gate" rb-release check'
+    '@<template tag>#subdirectory=gate" gate check'
 )
-FORBIDDEN = ["rb-cli-core", "adopt_core", "uv run rb-release", "release.py --check"]
+FORBIDDEN = ["rb-cli-core", "adopt_core", "uv run rb-gate", "release.py --check"]
 FORBIDDEN_IN_SKILL = [*FORBIDDEN, "docs command", "include_ci"]
 
 

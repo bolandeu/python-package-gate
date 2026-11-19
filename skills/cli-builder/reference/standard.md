@@ -9,7 +9,7 @@ checks a **Recommended** rule: a package may differ, and says how and why in its
 The gate is one command, run in the package root, with nothing added to the package:
 
 ```bash
-uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<tag>#subdirectory=gate" rb-release check
+uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<tag>#subdirectory=gate" gate check
 ```
 
 `<tag>` is the template tag of the package (`_commit` in `.copier-answers.yml`), else the latest tag of
@@ -248,7 +248,7 @@ character as `_` (`sitemap-xml` → `SITEMAP_XML`).
 
 ## CI
 
-The gate is `rb-release check`, run on the machine that builds the package: the command at the top of this Standard.
+The gate is `gate check`, run on the machine that builds the package: the command at the top of this Standard.
 There is no second gate and no CI file — no workflow under `.gitea/workflows/`, none under `.github/`. Gitea stores
 releases and nothing else; it runs no test. A release exists only after a green gate, a red one stops the tag. Why: a
 remote run of the same gate tells nothing the local one did not, and every copied workflow drifts from the template

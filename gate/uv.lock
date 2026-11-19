@@ -227,7 +227,7 @@ wheels = [
 ]
 
 [[package]]
-name = "rb-release"
+name = "rb-gate"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [

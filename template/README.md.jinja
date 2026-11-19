@@ -16,7 +16,7 @@ secrets when `gitleaks` is installed (`brew install gitleaks`) and `uv.lock`
 for known vulnerabilities when `osv-scanner` is installed (`brew install
 osv-scanner`), and says it skipped a scan otherwise. The gate is local and it
 is the only gate: run the `[publish] gate_command` of
-`.agents/antagor/antagor.toml` (`rb-release check`) before every commit.
+`.agents/antagor/antagor.toml` (`gate check`) before every commit.
 
 ## Release
 

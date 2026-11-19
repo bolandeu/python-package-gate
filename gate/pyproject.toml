@@ -1,21 +1,21 @@
 [project]
-name = "rb-release"
+name = "rb-gate"
 # Not released on its own: a package runs the gate of a template tag
-# (uvx --from "git+…/cli-generator.git@<tag>#subdirectory=gate" rb-release check).
+# (uvx --from "git+…/cli-generator.git@<tag>#subdirectory=gate" gate check).
 version = "0.0.0"
-description = "The release gate of the CLI standard: rb-release check, run over the package in the current directory"
+description = "The release gate of the CLI standard: gate check, run over the package in the current directory"
 requires-python = ">=3.11"
 dependencies = ["typer>=0.12"]
 
 [project.scripts]
-rb-release = "rb_release.cli:main"
+gate = "rb_gate.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["rb_release", "standard"]
+packages = ["rb_gate", "standard"]
 exclude = ["standard/tests"]
 
 [dependency-groups]
@@ -42,7 +42,7 @@ select = ["E4", "E7", "E9", "F", "I", "UP", "B", "SIM", "RUF", "S", "T20"]
 
 [tool.ruff.lint.per-file-ignores]
 "{tests,standard/tests}/*" = ["S101"]  # assert is the point of a test
-"rb_release/gate.py" = ["S603", "S607"]  # the gate runs fixed argv lists (git, uv, ruff), no shell
+"rb_gate/gate.py" = ["S603", "S607"]  # the gate runs fixed argv lists (git, uv, ruff), no shell
 
 [tool.ruff.lint.flake8-bugbear]
 # Typer's `param: T = typer.Option(...)` style is a call in a default on purpose.

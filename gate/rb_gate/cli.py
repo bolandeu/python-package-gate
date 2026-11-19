@@ -1,6 +1,6 @@
-"""The rb-release Typer app: `rb-release check` and the global `--project` option.
+"""The rb-gate Typer app: `gate check` and the global `--project` option.
 
-The console script `rb-release` (pyproject.toml [project.scripts]) calls main(). Only argument
+The console script `rb-gate` (pyproject.toml [project.scripts]) calls main(). Only argument
 handling lives here; the gate itself is gate.py.
 """
 
@@ -14,7 +14,7 @@ from .gate import Gate, NotAPackage
 
 EXIT_USAGE = 2
 
-app = typer.Typer(help="rb-release — the release gate of the CLI standard")
+app = typer.Typer(help="rb-gate — the release gate of the CLI standard")
 
 
 @app.callback()
@@ -45,8 +45,8 @@ def check(
     verdict: `release: gate passed` (0), `release: code failed` (1),
     `release: audit failed` (3). No pyproject.toml there: exit 2.
 
-    Example: rb-release check
-    Example: rb-release check --keep-going
+    Example: gate check
+    Example: gate check --keep-going
     """
     try:
         gate = Gate.at(Path(ctx.obj.get("project") or Path.cwd()))

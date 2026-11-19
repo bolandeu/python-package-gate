@@ -73,7 +73,7 @@ the task needs, and nothing else. The Standard, Optional parts, holds each part'
 ## 5. Gate before every commit
 
 ```bash
-cd <dest-dir> && uv sync && uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<template tag>#subdirectory=gate" rb-release check && uv run <package_name> doctor
+cd <dest-dir> && uv sync && uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@<template tag>#subdirectory=gate" gate check && uv run <package_name> doctor
 ```
 
 `<template tag>` is `_commit` in `.copier-answers.yml`. In the package the command is `[publish] gate_command` of

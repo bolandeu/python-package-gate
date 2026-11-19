@@ -9,11 +9,11 @@ STANDARD = (ROOT / "skills" / "cli-builder" / "reference" / "standard.md").read_
 
 GATE = (
     'uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git'
-    '@<template tag>#subdirectory=gate" rb-release check'
+    '@<template tag>#subdirectory=gate" gate check'
 )
 FORBIDDEN = [
     "adopt_core",
-    "uv run rb-release",
+    "uv run rb-gate",
     "release.py --check",
     "rb-cli-core",
     "include_ci",

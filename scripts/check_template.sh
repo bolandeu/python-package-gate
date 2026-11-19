@@ -36,7 +36,7 @@ check_gate_files() {
     grep -q adopt_core .copier-answers.yml && fail "adopt_core in .copier-answers.yml"
     git grep -q rb-cli-core && fail "rb-cli-core in $(git grep -l rb-cli-core | tr '\n' ' ')"
     tag=$(sed -n 's/^_commit: //p' .copier-answers.yml)
-    gate="uvx --from \"git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@$tag#subdirectory=gate\" rb-release check"
+    gate="uvx --from \"git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@$tag#subdirectory=gate\" gate check"
     grep -qF "$gate" .agents/antagor/antagor.toml || fail ".agents/antagor/antagor.toml does not call: $gate"
     # README.md is the project's own (copier skips it on update): an old one may still hold the command
     holders=$(git grep -lF 'uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@' -- . ':!README.md' | tr '\n' ' ')
@@ -45,10 +45,10 @@ check_gate_files() {
 import tomllib
 c = tomllib.load(open('.agents/antagor/antagor.toml', 'rb'))
 assert 'python3 scripts/check_command_docstrings.py' in c['checks'], c['checks']
-assert not any('rb-release' in check for check in c['checks']), c['checks']
+assert not any('rb-gate' in check for check in c['checks']), c['checks']
 "
     for file in AGENTS.md CODING_STANDARDS.md; do
-        grep -qF 'rb-release check' "$file" || fail "$file does not name the gate"
+        grep -qF 'gate check' "$file" || fail "$file does not name the gate"
         grep -qF '.gitea/workflows' "$file" && fail "$file names a Gitea workflow"
     done
     for file in AGENTS.md src/demotool/data/SKILL.md; do
@@ -68,8 +68,8 @@ c = tomllib.load(open('.agents/antagor/antagor.toml', 'rb'))
 publish = c['publish']
 assert publish.get('gate', 'local') == 'local', publish
 assert 'gate_status_url' not in publish, publish
-assert publish['gate_command'].endswith('#subdirectory=gate\" rb-release check'), publish
-assert c['heavy'] == ['rb-release check'], c.get('heavy')
+assert publish['gate_command'].endswith('#subdirectory=gate\" gate check'), publish
+assert c['heavy'] == ['gate check'], c.get('heavy')
 assert 'gate_command' not in c, c
 "
     for file in AGENTS.md CODING_STANDARDS.md; do
@@ -144,7 +144,7 @@ expect_root_options() {
 # on the lowest Python a package may declare.
 run_gate() {
     before=$(cat pyproject.toml uv.lock | shasum)
-    run uvx --no-cache "$@" --from "$ROOT/gate" rb-release check
+    run uvx --no-cache "$@" --from "$ROOT/gate" gate check
     [ "$(cat pyproject.toml uv.lock | shasum)" = "$before" ] || fail "the gate changed pyproject.toml or uv.lock"
 }
 
@@ -478,7 +478,7 @@ import re
 path = ".agents/antagor/antagor.toml"
 text = open(path).read()
 text = re.sub(r"(?m)^checks = .*$", 'checks = ["uv run pytest -q --no-cov {test_paths}", "python3 scripts/check_command_docstrings.py"]', text)
-text = text.replace('heavy = ["rb-release check"]', 'mode = "fast"\nworker = "claude-code"\nheavy = ["rb-release check"]')
+text = text.replace('heavy = ["gate check"]', 'mode = "fast"\nworker = "claude-code"\nheavy = ["gate check"]')
 text = text.replace('required_types = ["feature", "bugfix"]', 'required_types = ["feature"]\nreviewer = "claude-code"')
 # Antagor owns the schema number and the prefix rule: the package's tests do not assert them.
 text = re.sub(r"(?m)^schema = .*$", "schema = 2", text)
