@@ -9,6 +9,8 @@ Pointers for agents. Antagor shows the changing state (statuses, branches, tasks
 - How to write to the Human and to agents (ASD-STE100): the skill `antagor-method`, section «How to write to the Human and to agents».
 - A package belongs to the family by its distribution name `rb-*`, not by its command: the command may differ from the slug — never rename one to match the other (Standard, Technology).
 - The package Standard: https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator/src/branch/main/skills/cli-builder/reference/standard.md (sections by name, for example «Install»).
+- Portability: `pathlib` and `platformdirs` for paths, explicit UTF-8 for text, UTC and `time.monotonic` for time, atomic writes through `os.replace`, OS-specific behaviour behind one small interface, no `shell=True`, no `os.fork`.
+- Addresses are deployment, not code: no package-index URL, registry host or credential name in `pyproject.toml`, in the package or in the wheel metadata. An index, if the deployment has one, is `UV_INDEX`; the release channel is the asset of a `vX.Y.Z` tag.
 - The gate before a commit: `gate check`, on this machine — the command is `[publish] gate_command` in `.agents/antagor/antagor.toml` (Standard, CI). It is the only gate: no workflow runs it.
 
 ## Architect only

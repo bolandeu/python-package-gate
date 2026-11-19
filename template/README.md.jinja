@@ -31,19 +31,14 @@ Work and releases go through Antagor.
 uv tool install .
 ```
 
-{% set github = not repository_url or repository_url.startswith('https://github.com/') -%}
-{% if not github -%}
-**From the Gitea registry** (the package is released there):
+**From a release asset — no index, no build, no git** (the release workflow
+attaches the wheel and the sdist to every `vX.Y.Z` tag):
 
 ```bash
-uv tool install {{ dist_name }} --index https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple
+uv tool install "{{ dist_name }} @ {% if repository_url and repository_url.startswith('https://github.com/') %}https://github.com/{{ repository_url | replace('https://github.com/', '') }}/releases/download/vX.Y.Z/<wheel-file>.whl{% else %}https://github.com/<owner>/<repo>/releases/download/vX.Y.Z/<wheel-file>.whl{% endif %}"
 ```
 
-**Or from the git tag, on any other machine (any OS):**
-{%- else -%}
-**On any other machine (any OS), once this repo is pushed to GitHub — no
-PyPI publish needed:**
-{%- endif %}
+**Or from the git tag** (needs git; never install a branch):
 
 ```bash
 {% if repository_url -%}
@@ -53,20 +48,31 @@ uv tool install "{{ dist_name }} @ git+https://github.com/<owner>/<repo>.git@vX.
 {%- endif %}
 ```
 
-Replace `vX.Y.Z` with the latest release tag (never install a branch). This is also how an AI agent
+**In a container, from a wheelhouse** — reproducible, and the image needs no
+network at build time:
+
+```dockerfile
+COPY dist/*.whl /wheelhouse/
+RUN uv pip install --no-index --find-links /wheelhouse {{ dist_name }}
+```
+
+No package-index address appears in this package: an index, if the deployment
+has one, is configured by the environment (`UV_INDEX`), never by the package.
+
+Replace `vX.Y.Z` with the latest release tag. This is also how an AI agent
 bootstraps this CLI on a fresh machine/sandbox where it isn't installed
 yet{% if include_skill %} — see `src/{{ package_name }}/data/SKILL.md`{% endif %}.
-{% if github %}
-**Private repo?** The command above is unchanged — `uv` runs git under the
-hood, so it authenticates the same way `git clone` does. On a machine
-where the install is refused with an auth error, do one of these once:
+
+**Private repo?** The asset and git forms need the same credentials as
+`git clone`. On a machine where the install is refused with an auth error, do
+one of these once:
 
 ```bash
 gh auth login          # interactive login also sets up git's credential helper
 gh auth setup-git      # only needed if gh was logged in with --with-token / in CI
 ```
 
-or use the SSH form instead of HTTPS:
+or use the SSH form of the git install:
 
 ```bash
 {% if repository_url -%}
@@ -75,7 +81,7 @@ uv tool install "{{ dist_name }} @ git+ssh://git@github.com/{{ repository_url | 
 uv tool install "{{ dist_name }} @ git+ssh://git@github.com/<owner>/<repo>.git@vX.Y.Z"
 {%- endif %}
 ```
-{% endif %}
+
 **Update** an installed copy to the latest commit:
 
 ```bash
