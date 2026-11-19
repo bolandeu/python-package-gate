@@ -150,7 +150,7 @@ def _state(runs: Path, label: str) -> dict:
     try:
         ended = json.loads((runs / f"{label}.exit").read_text())
         result.update(state="done", exit_code=ended["code"], ended=ended["ended"])
-    except OSError, ValueError, KeyError:
+    except (OSError, ValueError, KeyError):
         result["state"] = "running" if pid is not None and _alive(pid) else "killed"
     stderr = runs / f"{label}.stderr"
     result["stderr_bytes"] = stderr.stat().st_size if stderr.exists() else 0
