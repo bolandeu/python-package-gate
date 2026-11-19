@@ -36,10 +36,10 @@ check_gate_files() {
     grep -q adopt_core .copier-answers.yml && fail "adopt_core in .copier-answers.yml"
     git grep -q rb-cli-core && fail "rb-cli-core in $(git grep -l rb-cli-core | tr '\n' ' ')"
     tag=$(sed -n 's/^_commit: //p' .copier-answers.yml)
-    gate="uvx --from \"git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@$tag#subdirectory=gate\" gate check"
+    gate="uvx --from \"git+https://github.com/bolandeu/python-package-gate.git@$tag#subdirectory=gate\" gate check"
     grep -qF "$gate" .agents/antagor/antagor.toml || fail ".agents/antagor/antagor.toml does not call: $gate"
     # README.md is the project's own (copier skips it on update): an old one may still hold the command
-    holders=$(git grep -lF 'uvx --from "git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator.git@' -- . ':!README.md' | tr '\n' ' ')
+    holders=$(git grep -lF 'uvx --from "git+https://github.com/bolandeu/python-package-gate.git@' -- . ':!README.md' | tr '\n' ' ')
     [ "$holders" = ".agents/antagor/antagor.toml " ] || fail "the gate command is in: $holders"
     run python3 -c "
 import tomllib
