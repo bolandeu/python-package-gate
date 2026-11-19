@@ -233,6 +233,16 @@ INSTALL_KEYS = ("homeserver", "mac", "extras")
 # --- the gate over one package ----------------------------------------------------
 
 
+# The gate runs from its own tool environment (`uv tool install`): the package's commands must not inherit it,
+# or `uv run` inside the package would pick the gate's venv instead of the project's.
+_OWN_ENV = ("VIRTUAL_ENV", "VIRTUAL_ENV_PROMPT", "PYTHONHOME", "CONDA_PREFIX")
+
+
+def _clean_env() -> dict[str, str]:
+    """The environment for the package's commands, without the gate's own interpreter."""
+    return {key: value for key, value in os.environ.items() if key not in _OWN_ENV}
+
+
 class Gate:
     """The gate steps over the package at `root`: the directory with its pyproject.toml."""
 
@@ -271,7 +281,9 @@ class Gate:
 
     def step_output(self, *args: str, env: dict[str, str] | None = None) -> str:
         """Run one gate command; raise StepFailed with its combined output if it fails."""
-        result = subprocess.run(args, cwd=self.root, text=True, capture_output=True, env=env, check=False)
+        result = subprocess.run(
+            args, cwd=self.root, text=True, capture_output=True, env=env or _clean_env(), check=False
+        )
         output = (result.stdout + result.stderr).strip()
         if result.returncode:
             raise StepFailed(f"$ {' '.join(args)}\n{output}")
@@ -289,7 +301,7 @@ class Gate:
     def run_command(self, argv: tuple[str, ...]) -> str:
         if argv[:2] == ("uv", "run"):  # run lint/types/tests with the configured extras installed
             argv = ("uv", "run", *self._extra_args(), *argv[2:])
-        env = {**os.environ, **CI_ENV} if "pytest" in argv else None
+        env = {**_clean_env(), **CI_ENV} if "pytest" in argv else None
         self.step_output(*argv, env=env)
         return ""
 
@@ -504,7 +516,7 @@ class Gate:
         index) would be resolved from PyPI — where an unrelated package of the
         same name may live (dependency confusion).
         """
-        env = {**os.environ, "UV_PROJECT_ENVIRONMENT": str(python.parent.parent)}
+        env = {**_clean_env(), "UV_PROJECT_ENVIRONMENT": str(python.parent.parent)}
         self.step_output("uv", "sync", "--frozen", "--no-dev", "--no-install-project", "--quiet", env=env)
         self.check_index_sources(python)
 
@@ -565,7 +577,7 @@ class Gate:
             detail = self._check_library(python, self._wheel_tops(self.wheel), project["name"], self.release_version)
             return f"resolved from the index; {detail}"
         tool_dir = scratch / "tools"
-        env = {**os.environ, "UV_TOOL_DIR": str(tool_dir), "UV_TOOL_BIN_DIR": str(scratch / "tools-bin")}
+        env = {**_clean_env(), "UV_TOOL_DIR": str(tool_dir), "UV_TOOL_BIN_DIR": str(scratch / "tools-bin")}
         self.step_output("uv", "tool", "install", "--quiet", str(self.root), env=env)
         exe = Path(env["UV_TOOL_BIN_DIR"]) / (f"{script}.exe" if os.name == "nt" else script)
         reported = self._printed_version(exe)

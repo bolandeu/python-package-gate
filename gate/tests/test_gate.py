@@ -804,3 +804,15 @@ def test_our_package_installed_from_pypi_fails(tmp_path: Path) -> None:
     assert raised.value.output == (
         "installed from a package index other than their explicit index: rb-x 0.9.0 (uv.lock: 0.1.0 from `gitea`)"
     )
+
+
+def test_the_gate_ignores_its_own_virtualenv(monkeypatch) -> None:
+    """Installed as a tool, the gate runs inside its own venv; the package's commands must not inherit it."""
+    from rb_gate.gate import _clean_env
+
+    monkeypatch.setenv("VIRTUAL_ENV", "/gate/venv")
+    monkeypatch.setenv("PYTHONHOME", "/gate/python")
+    monkeypatch.setenv("KEEP_ME", "1")
+    env = _clean_env()
+    assert "VIRTUAL_ENV" not in env and "PYTHONHOME" not in env
+    assert env["KEEP_ME"] == "1"
