@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Outside epics
+
+- Гейт переименован: дистрибутив `rb-release` → `rb-gate`, модуль `rb_release` → `rb_gate`, команда `rb-release` → `gate` (репозиторий — `python-package-gate`). Причина: правило «дистрибутив `rb-<x>`, команда `<x>`» (ADR 0004), а публикации ещё не было.
+- Удалены `.agents/antagor/**` (история агента, не продукт) и parity-сьют, который сверялся с удалённым `template/scripts/release.py`.
+- `copier update` в пакете режима `fast`: конфликт теперь занимает две строки (`checks` пакета и `heavy` шаблона) — разрешение и текст скилла обновлены.
+- `CONTEXT.md`: один термин «Гейт» вместо двух, устаревшее определение через `release.py` убрано; `AGENTS.md` больше не отправляет к `release.py`.
+
 ## v1.27.10 — 2026-11-16
 
 ### Outside epics
