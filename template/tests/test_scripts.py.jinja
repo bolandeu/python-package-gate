@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import importlib.util
-{% if include_cli %}import os
+{% if include_cli %}
+import os
 import shutil
 import subprocess
-{% endif %}from pathlib import Path
+{% endif %}
+from pathlib import Path
 from types import ModuleType
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
