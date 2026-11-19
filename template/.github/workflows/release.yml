@@ -1,0 +1,38 @@
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+
+# One tag releases the package: the version is the tag (uv-dynamic-versioning), the wheel and the sdist go to
+# the GitHub release, so any machine installs the package with no index and no build step:
+#   uv tool install "{{ dist_name }} @ https://github.com/<owner>/<repo>/releases/download/vX.Y.Z/<wheel>.whl"
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # tags: the version comes from them
+          persist-credentials: false
+      # setup-uv v10.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d
+        with:
+          python-version: '3.11'
+          enable-cache: false
+      - run: uv run --locked --group dev pytest -q
+      - run: uv build --out-dir dist
+      - name: Check distribution metadata
+        run: uvx --from 'twine>=7,<8' twine check dist/*
+      - name: Verify the tag matches the package version
+        run: |
+          wheel=$(basename dist/*-py3-none-any.whl)
+          version=${wheel%-py3-none-any.whl}
+          version=${version##*-}
+          case "$version" in *+*) echo "the tag is not on this commit: $version"; exit 1;; esac
+          test "$GITHUB_REF_NAME" = "v$version" || { echo "$GITHUB_REF_NAME does not match $version"; exit 1; }
+      - name: Attach the distributions to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --generate-notes

@@ -108,7 +108,7 @@ def installed_cli_version(name: str) -> tuple[str | None, str | None]:
         result = subprocess.run(  # noqa: S603 — fixed argv, executable resolved via shutil.which
             [exe, *argv[1:]], capture_output=True, text=True, timeout=VERSION_TIMEOUT, check=False
         )
-    except OSError, subprocess.TimeoutExpired:
+    except (OSError, subprocess.TimeoutExpired):
         return exe, None
     return exe, (_version_in(result.stdout + "\n" + result.stderr) if result.returncode == 0 else None)
 
