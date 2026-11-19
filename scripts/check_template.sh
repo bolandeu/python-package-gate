@@ -366,15 +366,16 @@ PY
     fi
     update_staged
     if [ -n "${FAST_CHECKS:-}" ]; then
-        # The one line both sides changed: the template dropped the gate from `checks`, the package wrote its own
-        # `checks`. It is the only conflict; the package keeps its own line, as the update step of the skill says.
+        # The lines both sides changed: the template dropped the gate from `checks` and renamed the gate in `heavy`,
+        # the package wrote its own `checks`. One conflict, two lines; the package keeps its `checks`, the template's
+        # `heavy` is taken, as the update step of the skill says.
         conflicts=$(grep -rlE '^<<<<<<< ' . --exclude-dir=.git --exclude-dir=.venv | tr '\n' ' ')
         [ -z "$conflicts" ] || [ "$conflicts" = "./.agents/antagor/antagor.toml " ] || fail "conflicts in: $conflicts"
         run python3 - <<'PY'
 import re
 path = ".agents/antagor/antagor.toml"
 text = open(path).read()
-text = re.sub(r"(?ms)^<<<<<<< .*?\n=======\n.*?\n>>>>>>> [^\n]*\n", 'checks = ["uv run pytest -q --no-cov {test_paths}", "python3 scripts/check_command_docstrings.py"]\n', text)
+text = re.sub(r"(?ms)^<<<<<<< .*?\n=======\n.*?\n>>>>>>> [^\n]*\n", 'checks = ["uv run pytest -q --no-cov {test_paths}", "python3 scripts/check_command_docstrings.py"]\nheavy = ["gate check"]\n', text)
 open(path, "w").write(text)
 PY
     fi

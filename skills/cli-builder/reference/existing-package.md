@@ -128,8 +128,9 @@ fixes or when the package still has the old gate.
    `heavy = ["gate check"]`, and the local gate: `[publish] gate_command` holds the command with the template tag,
    and `[publish]` names no `gate` and no `gate_status_url` (Standard, CI). The update writes that line, drops the gate
    line from an unchanged `checks` and deletes the workflow. A package of mode fast wrote its own
-   `checks`: this update, once, conflicts on that one line. Resolve it: keep the package's own `checks`, with no gate
-   command, and delete the conflict markers. `AGENTS.md` and `CODING_STANDARDS.md` name `gate check` and no
+   `checks`: this update, once, conflicts on that hunk. The hunk spans two lines, because the template also renamed the
+   gate in `heavy`. Resolve it: keep the package's own `checks`, with no gate command, take `heavy = ["gate check"]`, and
+   delete the conflict markers. `AGENTS.md` and `CODING_STANDARDS.md` name `gate check` and no
    workflow. A task for a worker: the
    Architect puts `.agents/antagor/antagor.toml` in `owns_paths` of the task.
 8. **Lock and snapshots.** `uv lock`, then `uv run pytest --snapshot-update`. Help snapshots are rendered only on
