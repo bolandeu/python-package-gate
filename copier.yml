@@ -26,6 +26,7 @@ _exclude:
   - "{% if include_cli is false %}src/{{ package_name }}/output{% endif %}"
   - "{% if include_cli is false %}src/{{ package_name }}/data/SKILL.md{% endif %}"
   - "{% if include_cli is false %}scripts/check_command_docstrings.py{% endif %}"
+  - "{% if include_cli is false %}tests/test_command_docstrings.py{% endif %}"
   - "{% if include_cli is false %}tests/test_cli.py{% endif %}"
   - "{% if include_cli is false %}tests/test_help.py{% endif %}"
   - "{% if include_cli is false %}tests/test_describe.py{% endif %}"
