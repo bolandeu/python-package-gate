@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Standard: *Addresses and paths* — a package ships no address of somebody's infrastructure; such values come from an environment variable or the config, and a missing one is a clear `INVALID_ARGUMENTS`, not a default or a timeout.
 
 ### Outside epics
 

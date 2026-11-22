@@ -24,6 +24,7 @@ OPTIONAL_PARTS = [
     "Project",
     "Credentials and providers",
     "HTTP",
+    "Addresses and paths",
     "Database",
     "Package skill",
     "Describe",

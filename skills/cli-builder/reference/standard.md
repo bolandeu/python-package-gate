@@ -363,6 +363,21 @@ your own.
 - **Recommended.** A `User-Agent` of `<cli>/<version>` and a 30 s timeout. Why: a stuck service cannot hang an agent.
 - **Recommended.** Request and retry lines go to the log, shown under `--verbose`.
 
+### Addresses and paths
+
+**When.** The tool talks to something that is not its own process: a server, a database, a folder of the user's.
+
+**Turn on.** Nothing to turn on: it holds for every package that addresses a service or a folder, and its values arrive
+as environment variables or project settings — no new dependency.
+
+- **Recommended.** The package ships no address of somebody's infrastructure: no host, URL, tailnet name, absolute path
+  or home folder of the author. Such a value comes from an environment variable or the project config
+  (`<TOOL>_<NAME>_URL`, `<TOOL>_<NAME>_PATH`), and `describe --json` lists it under `x-rb-env`.
+- **Recommended.** A missing value is `INVALID_ARGUMENTS` naming the variable and showing an example — never a silent
+  default and never a timeout ten seconds later.
+- **Recommended.** The public address of a service the tool is a client of (an API root such as `https://api.exa.ai`)
+  stays a constant, overridable by the config: it is the service's own address, not somebody's machine.
+
 ### Database
 
 **When.** The tool keeps data: journals, results, history, a cache of paid responses.
