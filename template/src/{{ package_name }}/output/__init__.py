@@ -45,6 +45,7 @@ __all__ = [
 
 _CLI_NAME = cli_name()
 _PACKAGE_NAME = __name__.split(".")[0]
+_TOOL = _PACKAGE_NAME.removeprefix("rb_")  # the command and the project folder
 # Click's UsageError (unknown option, missing argument, bad value): recent Typer ships its own copy of Click,
 # so it is taken from Typer's BadParameter, never imported from the `click` package.
 _UsageError = cast("type[Exception]", typer.BadParameter.__bases__[0])
@@ -279,7 +280,7 @@ def guard(func: Callable) -> Callable:
     # so template-born commands need no Jinja rendering.
     # Escaped because Typer renders help as rich markup, which silently drops
     # anything in brackets (`[[tool.rb.external]]`, `[x]`).
-    doc = (func.__doc__ or "").replace("{cli}", _CLI_NAME).replace("{package}", _PACKAGE_NAME)
+    doc = (func.__doc__ or "").replace("{cli}", _CLI_NAME).replace("{package}", _TOOL)
     wrapper.__doc__ = escape(doc) or None
     _GUARDED.add(wrapper)
     return wrapper
