@@ -21,7 +21,7 @@ database is newer than this CLI, `DatabaseTooNew`).
 from __future__ import annotations
 
 import os
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -248,7 +248,7 @@ def open_db(*, check: bool = True) -> sa.Engine:
 
 
 @contextmanager
-def connect() -> Iterator[sa.Connection]:
+def connect() -> Generator[sa.Connection]:
     """A transaction on the tool's database: committed on success, rolled back on error."""
     engine = open_db()
     try:
