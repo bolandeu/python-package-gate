@@ -10,14 +10,10 @@ from pathlib import Path
 import tomli_w
 from packaging.version import Version
 
+from .._distribution import TOOL
 from .errors import CliTooOld, ProjectNotInitialized
 from .models import ProjectConfig
 from .version import installed_version
-
-# Derived at import time from this package's own name, so this module never
-# needs template substitution: it just works under whatever package_name
-# the project was generated with.
-from .._distribution import TOOL
 
 # The project folder is named after the command (`.<cli>`), not after the import package: `.onpage`, `.wordstat`.
 PROJECT_DIR_NAME = f".{TOOL}"
