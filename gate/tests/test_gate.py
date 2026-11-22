@@ -28,6 +28,7 @@ STEPS = [
     "ty check",
     "pytest",
     "contracts",
+    "addresses",
     "existing tests",
     "install section",
     "external dependencies",
@@ -825,3 +826,52 @@ def test_a_warning_on_stderr_is_not_the_version(tmp_path: Path) -> None:
     script.chmod(0o755)
     gate = Gate(tmp_path)
     assert gate._printed_version(script) == "1.2.3"
+
+def _source(root: Path, name: str, text: str) -> Gate:
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "pyproject.toml").write_text('[project]\nname = "x"\n')
+    (root / "src").mkdir(exist_ok=True)
+    (root / "src" / name).write_text(text, encoding="utf-8")
+    return Gate(root)
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        'URL = "https://homeserver.tail1234.ts.net:8010/v2/check"',
+        'BASE = "http://127.0.0.1:8080/x"',
+        'DB = "postgresql://u:p@192.168.0.16:5432/db"',
+        'KEY = "/Users/someone/.config/key.json"',
+    ],
+)
+def test_an_address_of_somebody_s_machine_is_refused(tmp_path: Path, line: str) -> None:
+    gate = _source(tmp_path / "a", "x.py", line + "\n")
+
+    with pytest.raises(StepFailed) as raised:
+        gate.check_addresses()
+
+    assert raised.value.output.splitlines()[0].startswith("src/x.py:1: ")
+    assert "Name it in a setting instead" in raised.value.output
+
+def test_an_address_listed_with_a_reason_passes_and_is_counted(tmp_path: Path) -> None:
+    gate = _source(tmp_path / "c", "x.py", 'REDIRECT = "http://localhost:1234/"\n')
+    (tmp_path / "c" / "pyproject.toml").write_text(
+        '[project]\nname = "x"\n[tool.rb.gate]\naddresses_allow = ['
+        ' { pattern = "http://localhost:", reason = "OAuth loopback redirect" } ]\n'
+    )
+
+    assert Gate(tmp_path / "c").check_addresses() == "1 files scanned, 1 allowed by [tool.rb.gate]"
+
+def test_an_allow_entry_without_a_reason_is_refused(tmp_path: Path) -> None:
+    gate = _source(tmp_path / "d", "x.py", 'REDIRECT = "http://localhost:1234/"\n')
+    (tmp_path / "d" / "pyproject.toml").write_text(
+        '[project]\nname = "x"\n[tool.rb.gate]\naddresses_allow = [ { pattern = "http://localhost:" } ]\n'
+    )
+
+    with pytest.raises(StepFailed, match="needs a `pattern` and a `reason`"):
+        Gate(tmp_path / "d").check_addresses()
+
+def test_a_public_service_address_and_a_setting_pass(tmp_path: Path) -> None:
+    text = 'BASE = "https://api.exa.ai"\nURL = os.environ["TOOL_THING_URL"]\n'
+    gate = _source(tmp_path / "b", "x.py", text)
+
+    assert gate.check_addresses() == "1 files scanned"

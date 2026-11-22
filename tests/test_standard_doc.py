@@ -41,6 +41,7 @@ GATE_STEPS = {
     "standard: params",
     "standard: ci",
     "secret scan",
+    "addresses",
     "uv lock --check",
     "ruff check",
     "ruff format --check",

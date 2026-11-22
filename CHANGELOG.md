@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Gate: step `addresses` — `src/` names no host or absolute path of a person (loopback, private ranges, tailnet names, `/Users/…`); `[tool.rb.gate] addresses_allow` lists the reasoned exceptions.
 - Standard: *Addresses and paths* — a package ships no address of somebody's infrastructure; such values come from an environment variable or the config, and a missing one is a clear `INVALID_ARGUMENTS`, not a default or a timeout.
 
 ### Outside epics

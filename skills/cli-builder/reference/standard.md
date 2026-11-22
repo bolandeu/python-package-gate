@@ -370,9 +370,12 @@ your own.
 **Turn on.** Nothing to turn on: it holds for every package that addresses a service or a folder, and its values arrive
 as environment variables or project settings — no new dependency.
 
-- **Recommended.** The package ships no address of somebody's infrastructure: no host, URL, tailnet name, absolute path
-  or home folder of the author. Such a value comes from an environment variable or the project config
+- **Mandatory** (gate: `addresses`). The package ships no address of somebody's infrastructure: no host, URL, tailnet
+  name, absolute path or home folder of the author. Such a value comes from an environment variable or the project config
   (`<TOOL>_<NAME>_URL`, `<TOOL>_<NAME>_PATH`), and `describe --json` lists it under `x-rb-env`.
+- **Recommended.** An address that is right on purpose — an OAuth loopback redirect, a pattern that looks for such
+  links in crawled pages, an example in the help — is listed in `[tool.rb.gate] addresses_allow` as
+  `{ pattern = "http://localhost:", reason = "OAuth loopback redirect" }`; the reason is what a reviewer reads.
 - **Recommended.** A missing value is `INVALID_ARGUMENTS` naming the variable and showing an example — never a silent
   default and never a timeout ten seconds later.
 - **Recommended.** The public address of a service the tool is a client of (an API root such as `https://api.exa.ai`)

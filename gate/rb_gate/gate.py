@@ -90,6 +90,14 @@ NO_SUCH_COMMAND = "No such command"  # typer's usage error (exit 2) for a packag
 Echo = Callable[..., None]  # typer.echo: (message, nl=True, err=False)
 
 
+# What a package must not carry: somebody's machine, spelled as an address or as a path (Standard, Addresses and paths).
+ADDRESS_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"[a-z][a-z0-9+.-]*://(?:localhost|127\.0\.0\.1|0\.0\.0\.0)\b"), "a local address"),
+    (re.compile(r"[a-z][a-z0-9+.-]*://(?:[^/@\s]+@)?(?:10|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d"), "a private network address"),
+    (re.compile(r"[a-z][a-z0-9+.-]*://[A-Za-z0-9.-]+\.(?:ts\.net|tailscale\.net|local)\b"), "a tailnet or LAN host"),
+    (re.compile(r"""["'](?:/Users/[^"']+|/home/[^"']+|[A-Za-z]:\\\\Users[^"']*)["']"""), "an absolute path"),
+)
+
 class NotAPackage(Exception):
     """The gate was pointed at a directory without pyproject.toml: a usage error."""
 
@@ -385,6 +393,52 @@ class Gate:
             raise StepFailed(f"pyproject.toml [tool.rb.install]: {problems[0]}")
         return f"homeserver = {users}, mac = {str(mac).lower()}" + (f", extras = {extras}" if extras else "")
 
+    def check_addresses(self) -> str:
+        """`src/` names no machine of a person: such an address comes from a setting, not from the package.
+
+        An occurrence that is right on purpose — an OAuth loopback redirect, a pattern that looks for such links in
+        crawled pages, an example in the help — is listed in `[tool.rb.gate] addresses_allow` with its reason:
+        `{ pattern = "http://localhost:", reason = "OAuth loopback redirect" }`. The reason is what a reviewer reads.
+        """
+        found: list[str] = []
+        waived = 0
+        scanned = 0
+        allowed = self._allowed_addresses()
+        for path in sorted(self.root.glob("src/**/*.py")):
+            scanned += 1
+            text = path.read_text(encoding="utf-8", errors="replace")
+            for number, line in enumerate(text.splitlines(), 1):
+                for pattern, kind in ADDRESS_PATTERNS:
+                    match = pattern.search(line)
+                    if not match:
+                        continue
+                    if any(snippet in line for snippet in allowed):
+                        waived += 1
+                        continue
+                    found.append(f"{path.relative_to(self.root)}:{number}: {kind} {match.group(0)[:100]}")
+                    break
+        if found:
+            hint = (
+                "Name it in a setting instead: <TOOL>_<NAME>_URL or <TOOL>_<NAME>_PATH, and fail with a clear "
+                "INVALID_ARGUMENTS naming it when the value is missing (Standard, Addresses and paths)."
+            )
+            raise StepFailed("\n".join([*found, "", hint]))
+        return f"{scanned} files scanned" + (f", {waived} allowed by [tool.rb.gate]" if waived else "")
+
+    def _allowed_addresses(self) -> list[str]:
+        """The snippets `[tool.rb.gate] addresses_allow` lets through, each one with a reason next to it."""
+        entries = self._tool("rb").get("gate", {}).get("addresses_allow", [])
+        if not isinstance(entries, list):
+            raise StepFailed("pyproject.toml [tool.rb.gate] addresses_allow must be a list of { pattern, reason }")
+        patterns = []
+        for entry in entries:
+            if not isinstance(entry, dict) or not isinstance(entry.get("pattern"), str) or not entry.get("reason"):
+                raise StepFailed(
+                    f"pyproject.toml [tool.rb.gate] addresses_allow: {entry!r} needs a `pattern` and a `reason`"
+                )
+            patterns.append(entry["pattern"])
+        return patterns
+
     def check_existing_tests(self) -> str:
         """Tests the last release had that are changed or gone now: a test is not edited to fit the code.
 
@@ -638,6 +692,7 @@ class Gate:
             Step("secret scan", self.check_secrets),
             *(Step(name, lambda argv=argv: self.run_command(argv)) for name, argv in COMMANDS),
             Step("contracts", self.check_contracts),
+            Step("addresses", self.check_addresses),
             Step("existing tests", self.check_existing_tests),
             Step("install section", self.check_install_section),
             Step("external dependencies", self.check_external_deps),
