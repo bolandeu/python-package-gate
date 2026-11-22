@@ -5,7 +5,6 @@ Every command function's docstring is what Typer renders as `--help` —
 the documentation agents and humans read (the Standard, Commands). A command is a function in `src/*/commands/*.py` (or the globs in
 `[tool.cli-generator] commands` in pyproject.toml) decorated with
 `output.guard` or registered with `@<app>.command(...)`; "logic" is its signature plus its body minus the
-docstring. Antagor runs it as one of the project's `checks` (`.agents/antagor/antagor.toml`)
 on the working tree against HEAD; exit 1 on a stale docstring. A
 behaviour-neutral edit (lint/type fix) keeps the body AST-identical with
 `# noqa` / `# ty: ignore[...]` comments.

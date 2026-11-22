@@ -1,18 +1,14 @@
 # AGENTS.md
 
-Pointers for agents. Antagor shows the changing state (statuses, branches, tasks): `antagor board`.
 
 - What the project is, and the domain glossary: `CONTEXT.md`. Take terms only from there.
 - Decisions and why: `docs/adr/` (format: `docs/adr/README.md`).
 - Code rules for review: `CODING_STANDARDS.md`.
-- Antagor keeps the tasks and epics: `.agents/antagor/`.
-- How to write to the Human and to agents (ASD-STE100): the skill `antagor-method`, section «How to write to the Human and to agents».
 - A package belongs to the family by its distribution name `rb-*`, not by its command: the command may differ from the slug — never rename one to match the other (Standard, Technology).
-- The package Standard: https://homeserver.tailee01ab.ts.net:3000/bolandeu/cli-generator/src/branch/main/skills/cli-builder/reference/standard.md (sections by name, for example «Install»).
+- The package Standard: https://github.com/bolandeu/python-package-gate/blob/main/skills/cli-builder/reference/standard.md (sections by name, for example «Install»).
 - Portability: `pathlib` and `platformdirs` for paths, explicit UTF-8 for text, UTC and `time.monotonic` for time, atomic writes through `os.replace`, OS-specific behaviour behind one small interface, no `shell=True`, no `os.fork`.
 - Addresses are deployment, not code: no package-index URL, registry host or credential name in `pyproject.toml`, in the package or in the wheel metadata. An index, if the deployment has one, is `UV_INDEX`; the release channel is the asset of a `vX.Y.Z` tag.
-- The gate before a commit: `gate check`, on this machine — the command is `[publish] gate_command` in `.agents/antagor/antagor.toml` (Standard, CI). It is the only gate: no workflow runs it.
+- The gate before a commit: `gate check`, on this machine — the command is `uvx --from "git+https://github.com/bolandeu/python-package-gate.git@<template tag>#subdirectory=gate" gate check` (Standard, CI). It is the only gate: no workflow runs it.
 
 ## Architect only
 
-A worker does not need this section: Antagor cuts it from the worker's brief.

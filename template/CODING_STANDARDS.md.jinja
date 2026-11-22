@@ -5,7 +5,7 @@
 
 ## Гейт и тесты
 
-- **Гейт проходит перед каждым коммитом.** Гейт — `gate check`, он идёт на этой машине: команда — `[publish] gate_command` в `.agents/antagor/antagor.toml`, её и запускают перед коммитом. Он гоняет `uv lock --check`, ruff, ty,
+- **Гейт проходит перед каждым коммитом.** Гейт — `gate check`, он идёт на этой машине: команда — `uvx --from "git+https://github.com/bolandeu/python-package-gate.git@<тег шаблона>#subdirectory=gate" gate check`, её и запускают перед коммитом. Он гоняет `uv lock --check`, ruff, ty,
   pytest (порог покрытия, контракт `--help` и снапшоты, форма `auth status`), контракты потребителей
   (`tests/contracts/`), список изменённых существующих тестов, сборка wheel и `{{ cli_name }} --version` из неё,
   обязательные правила Стандарта. Упавший шаг чинят, а не пропускают. Другого гейта нет: ни один workflow его не гоняет.
@@ -82,7 +82,6 @@
 
 - **Версия — git-тег.** В `pyproject.toml` нет `version =` (uv-dynamic-versioning читает последний тег `vX.Y.Z`);
   строку версии нигде не зашивают.
-- **Релиз — только через Antagor.** Руками не пушат, не ставят теги и не правят `CHANGELOG.md`;
   force-push и `commit --amend` — никогда.
 - **Заметное изменение выходит релизом.** Серверы, другие инструменты и Mac ставят только по тегам, не с `main`.
   Не оставлять влитое без релиза, не назвав причину.{% if include_project %} Проект может требовать версию через `[cli] min_version`
@@ -92,8 +91,9 @@
   minor (на `0.x` — patch); исправление — patch. Сначала deprecate (предупреждение), убирать — в следующем
   ломающем релизе.
 - **Зависимость от другого нашего инструмента** — совместимый диапазон в `dependencies` (`>=0.2,<0.3`) и
-  источник — только реестр Gitea: `[tool.uv.sources] <name> = { index = "gitea" }` (индекс `gitea` с
-  `explicit = true` уже в `pyproject.toml`); никогда git-тег, `branch = "main"` и закоммиченный `path =`.
+  источник — рабочая копия на диске: `[tool.uv.sources] <name> = { path = "../<name>", editable = true }`;
+  на сервере — тег GitHub `git+https://github.com/bolandeu/<name>.git@vX.Y.Z`; никогда реестр, `branch = "main"`
+  и закоммиченный `path =`.
   Подъём — новый релиз зависимости, `uv lock --upgrade-package <name>`, полный гейт, один коммит.
 
 ## Внутри системы tools

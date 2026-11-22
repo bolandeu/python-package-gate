@@ -15,10 +15,8 @@ _exclude:
   - ".git"
   - ".DS_Store"
   - ".svn"
-  # Antagor's own files (`antagor new`, `antagor upgrade --apply`): the template neither ships nor touches them.
   - "CLAUDE.md"
   - "docs/adr/README.md"
-  - ".agents/antagor/.gitignore"
   # A library without a CLI: the gate then runs its library branch (no console script).
   - "{% if include_cli is false %}src/{{ package_name }}/cli.py{% endif %}"
   - "{% if include_cli is false %}src/{{ package_name }}/__main__.py{% endif %}"
@@ -111,27 +109,6 @@ cli_name:
     cli_name must be lowercase letters, digits, '-' or '_'
     {% endif %}
 
-antagor_prefix:
-  type: str
-  help: "Antagor task prefix: a capital letter, then 1-9 capitals or digits (tasks are <PREFIX>-001), e.g. MEDIAGEN"
-  default: >-
-    {%- set from_cli = cli_name | upper | regex_replace('[^A-Z]', '') -%}
-    {%- set from_pkg = package_name | upper | regex_replace('[^A-Z]', '') -%}
-    {{ (from_cli if from_cli | length >= 2 else (from_pkg if from_pkg | length >= 2 else 'TL'))[:3] }}
-  validator: >-
-    {% if not (antagor_prefix | regex_search('^[A-Z][A-Z0-9]{1,9}$')) %}
-    antagor_prefix must be a capital letter, then 1-9 capitals or digits
-    {% endif %}
-
-dist_name:
-  type: str
-  help: "Distribution name ([project] name; what `uv tool install` and dependencies use). Standard §10: rb-<slug> for import package rb_<slug>"
-  default: "rb-{{ package_name | regex_replace('^rb_', '') | replace('_', '-') }}"
-  validator: >-
-    {% if not (dist_name | regex_search('^[a-z][a-z0-9._-]*$')) %}
-    dist_name must be lowercase letters, digits, '.', '-' or '_'
-    {% endif %}
-
 dist_name_legacy:
   type: str
   help: "Previous distribution name while renaming to dist_name (standard §10) — installs made under it keep reporting their version; blank when not renaming"
@@ -214,7 +191,7 @@ include_contracts:
 # Not a question: the release gate, pinned to the template tag of the project (`_commit`). A package runs it
 # through uvx — never a copy in the project, never a dependency.
 # It is the only gate, and it is local: `[publish] gate_command` in
-# `.agents/antagor/antagor.toml` and the docs render it.
+# The docs and the tests render it.
 gate_command:
   type: str
   default: 'uvx --from "git+https://github.com/bolandeu/python-package-gate.git@{{ _copier_answers._commit }}#subdirectory=gate" gate check'
@@ -222,17 +199,8 @@ gate_command:
 
 repository_url:
   type: str
-  help: "GitHub mirror URL of this package (e.g. https://github.com/bolandeu/mycli); Gitea is the primary store, the mirror is private and nobody pushes to it — fills the `uv tool install git+…` command in README.md/SKILL.md; leave blank for a placeholder"
+  help: "GitHub mirror URL of this package (e.g. https://github.com/bolandeu/mycli); GitHub is the only store — fills the `uv tool install git+…` command in README.md/SKILL.md; leave blank for a placeholder"
   default: ""
-
-# The Antagor project name: the package's folder name, which is also its Gitea repository name (repository_url is
-# the GitHub mirror, its name can differ). On `copier update` `_copier_conf.dst_path` is a temporary folder or `.`,
-# so the default renders what the template wrote before this question, the command: the merge keeps the package's
-# line. The answer is kept.
-antagor_name:
-  type: str
-  help: "Antagor project name: the package's folder name, which is also its Gitea repository name"
-  default: "{{ cli_name if updating else _copier_conf.dst_path | realpath | basename }}"
 
 install_homeserver_users:
   type: str
